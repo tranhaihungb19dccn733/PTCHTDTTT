@@ -325,6 +325,7 @@ ml_reference_metrics = {
 
 
 def build_ml_feature_row(data: dict[str, Any]) -> dict[str, Any]:
+	"""Trích xuất các trường đặc trưng cần thiết cho mô hình ML từ dict dữ liệu đầu vào."""
 	return {
 		"age": data["age"],
 		"sex": data["sex"],
@@ -344,6 +345,7 @@ def build_ml_feature_row(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_model_feature_columns() -> list[str]:
+	"""Trả về danh sách tên cột đặc trưng phù hợp với phiên bản mô hình ML đang được tải."""
 	legacy_feature_columns = [
 		"age",
 		"sex",
@@ -377,6 +379,7 @@ def get_model_feature_columns() -> list[str]:
 
 
 def assess_training_coverage(data: dict[str, Any]) -> dict[str, Any]:
+	"""Kiểm tra xem ca đầu vào có mẫu trùng khớp trong tập dữ liệu huấn luyện Cleveland không."""
 	try:
 		dataframe = load_dataset()
 		features = pd.DataFrame([build_ml_feature_row(data)], columns=FEATURE_COLUMNS)
@@ -398,6 +401,7 @@ def assess_training_coverage(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def load_ml_model() -> None:
+	"""Tải mô hình Random Forest từ file .pkl vào biến toàn cục ml_model; cập nhật ml_model_error nếu thất bại."""
 	global ml_model, ml_model_error
 
 	if not MODEL_PATH.exists() or MODEL_PATH.stat().st_size == 0:
@@ -459,6 +463,7 @@ def load_extended_labeled_samples(available_columns: list[str]) -> tuple[Any, An
 
 
 def update_reference_metrics() -> None:
+	"""Tính và cập nhật độ chính xác tham chiếu của mô hình ML dựa trên dữ liệu Cleveland và mẫu người dùng đã xác nhận."""
 	global ml_reference_metrics
 
 	if ml_model is None:
@@ -524,6 +529,7 @@ def update_reference_metrics() -> None:
 
 
 def compute_ml_prediction(data: dict[str, Any]) -> dict[str, Any]:
+	"""Thực hiện dự đoán bằng mô hình ML và trả về xác suất, thông điệp trạng thái và thông tin phủ dữ liệu huấn luyện."""
 	training_coverage = assess_training_coverage(data)
 
 	if data["congenital_heart_disease"] == 1:
@@ -589,6 +595,7 @@ def compute_ml_prediction(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def risk_level_from_score(score: float) -> str:
+	"""Chuyển điểm nguy cơ (%) thành nhãn mức nguy cơ: 'high', 'moderate' hoặc 'low'."""
 	if score >= 70:
 		return "high"
 	if score >= 40:
@@ -597,6 +604,7 @@ def risk_level_from_score(score: float) -> str:
 
 
 def compute_expert_case_confidence(expert_result: dict[str, Any]) -> float:
+	"""Ước tính độ tin cậy ca (%) dựa trên điểm chuẩn hóa và số luật kích hoạt từ hệ chuyên gia."""
 	score = float(expert_result["normalized_score"])
 	triggered_count = len(expert_result.get("rule_hits", []))
 
@@ -616,6 +624,7 @@ def compute_expert_case_confidence(expert_result: dict[str, Any]) -> float:
 
 
 def compute_ml_case_confidence(probability: float | None) -> float | None:
+	"""Ước tính độ tin cậy ca (%) từ xác suất ML; trả về None nếu mô hình không có xác suất."""
 	if probability is None:
 		return None
 	return round(min(99.0, 50 + abs(float(probability) - 50)), 1)
@@ -627,6 +636,7 @@ def build_case_confidence(
 	ml_result: dict[str, Any],
 	final_assessment: dict[str, Any],
 ) -> dict[str, Any]:
+	"""Tổng hợp độ tin cậy toàn ca từ hệ chuyên gia, xác suất ML, độ chính xác tham chiếu và mức độ phủ dữ liệu."""
 	if input_data["congenital_heart_disease"] == 1:
 		return {
 			"percent": 99.0,
@@ -713,6 +723,7 @@ def build_case_confidence(
 
 
 def build_final_assessment(input_data: dict[str, Any], expert_result: dict[str, Any], ml_result: dict[str, Any]) -> dict[str, Any]:
+	"""Kết hợp điểm hệ chuyên gia và xác suất ML thành đánh giá nguy cơ cuối cùng (mức, nhãn, % và bước tiếp theo)."""
 	if input_data["congenital_heart_disease"] == 1:
 		return {
 			"risk_level": "high",
@@ -741,6 +752,7 @@ def build_final_assessment(input_data: dict[str, Any], expert_result: dict[str, 
 
 
 def build_prediction_response(input_data: dict[str, Any]) -> dict[str, Any]:
+	"""Điều phối toàn bộ quy trình: chạy hệ chuyên gia, ML, tổng hợp kết quả, lưu bản ghi và trả về response đầy đủ."""
 	expert_result = kbs_engine.analyze(input_data)
 	ml_result = compute_ml_prediction(input_data)
 	final_assessment = build_final_assessment(input_data, expert_result, ml_result)
@@ -760,8 +772,12 @@ def save_training_record(
 	ml_result: dict[str, Any],
 	final_assessment: dict[str, Any],
 ) -> None:
+	"""Lưu bản ghi dự đoán (dữ liệu đầu vào + kết quả) vào file CSV để phục vụ cho lần huấn luyện mô hình sau."""
 	USER_TRAINING_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
 	file_exists = USER_TRAINING_DATA_PATH.exists() and USER_TRAINING_DATA_PATH.stat().st_size > 0
+
+	final_risk_percent = final_assessment["risk_percent"]
+	confirmed_target = 1 if final_risk_percent >= 65 else 0
 
 	record = {
 		"submitted_at": datetime.now().isoformat(timespec="seconds"),
@@ -770,8 +786,8 @@ def save_training_record(
 		"expert_score": expert_result["normalized_score"],
 		"ml_probability": ml_result["probability"],
 		"final_risk_level": final_assessment["risk_level"],
-		"final_risk_percent": final_assessment["risk_percent"],
-		"confirmed_target": "",
+		"final_risk_percent": final_risk_percent,
+		"confirmed_target": confirmed_target,
 	}
 
 	with USER_TRAINING_DATA_PATH.open("a", newline="", encoding="utf-8") as csv_file:
@@ -782,6 +798,7 @@ def save_training_record(
 
 
 def next_step_for_risk(risk_level: str) -> str:
+	"""Trả về chuỗi hướng dẫn bước tiếp theo tương ứng với mức nguy cơ (low/moderate/high)."""
 	mapping = {
 		"low": "Duy trì theo dõi định kỳ, ăn uống lành mạnh và tập luyện đều.",
 		"moderate": "Nên khám chuyên khoa tim mạch để được chỉ định xét nghiệm bổ sung.",
@@ -792,11 +809,13 @@ def next_step_for_risk(risk_level: str) -> str:
 
 @app.on_event("startup")
 def startup_event() -> None:
+	"""Sự kiện khởi động ứng dụng FastAPI: tải mô hình ML vào bộ nhớ."""
 	load_ml_model()
 
 
 @app.get("/")
 def root() -> dict[str, Any]:
+	"""Endpoint gốc: trả về thông tin tổng quan về API và các đường dẫn hữu ích."""
 	return {
 		"message": "API Dự đoán bệnh tim đang hoạt động.",
 		"docs": "/docs",
@@ -808,6 +827,7 @@ def root() -> dict[str, Any]:
 
 @app.get("/health")
 def health() -> dict[str, Any]:
+	"""Endpoint kiểm tra trạng thái hệ thống: trả về trạng thái mô hình ML và số liệu độ chính xác tham chiếu."""
 	return {
 		"status": "ok",
 		"ml_model_loaded": ml_model is not None,
@@ -818,11 +838,13 @@ def health() -> dict[str, Any]:
 
 @app.get("/api/options")
 def get_options() -> dict[str, Any]:
+	"""Endpoint trả về danh sách các tùy chọn giá trị (label/value) cho từng trường nhập liệu của form."""
 	return OPTIONS
 
 
 @app.get("/api/demo-cases")
 def get_demo_cases() -> dict[str, Any]:
+	"""Endpoint trả về danh sách các ca demo kèm kết quả dự đoán tương ứng (thấp / trung bình / cao)."""
 	cases = []
 	for case in DEMO_CASES:
 		prediction = build_prediction_response(case["payload"])
@@ -846,12 +868,14 @@ def get_demo_cases() -> dict[str, Any]:
 
 @app.get("/api/predict/sample")
 def sample_prediction() -> dict[str, Any]:
+	"""Endpoint trả về kết quả dự đoán mẫu sử dụng ca nguy cơ cao từ DEMO_CASES để kiểm tra nhanh API."""
 	sample = HeartMetricsInput(**DEMO_CASES[2]["payload"])
 	return predict(sample)
 
 
 @app.post("/api/predict", response_model=PredictionResponse)
 def predict(payload: HeartMetricsInput) -> dict[str, Any]:
+	"""Endpoint chính: nhận dữ liệu chỉ số sức khỏe của bệnh nhân và trả về đánh giá nguy cơ tim mạch đầy đủ."""
 	input_data = payload.model_dump()
 	return build_prediction_response(input_data)
 

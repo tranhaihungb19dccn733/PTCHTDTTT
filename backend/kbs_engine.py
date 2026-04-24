@@ -23,9 +23,9 @@ class ExpertRule:
 
 class HeartDiseaseKBS:
 	"""Hệ chuyên gia sử dụng các luật IF-THEN có trọng số."""
-
 	def __init__(self) -> None:
 		self.rules = [
+			# Luật 1: Béo phì theo BMI
 			ExpertRule(
 				key="obesity_bmi",
 				score=get_rule_weight("obesity_bmi"),
@@ -34,6 +34,7 @@ class HeartDiseaseKBS:
 				recommendation="Nên kiểm soát cân nặng, giảm mỡ nội tạng và duy trì chế độ ăn ít năng lượng dư thừa.",
 				check=lambda data: self._bmi(data) >= 30,
 			),
+			# Luật 2: Hút thuốc lá
 			ExpertRule(
 				key="smoking",
 				score=get_rule_weight("smoking"),
@@ -42,6 +43,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần ngừng hút thuốc càng sớm càng tốt và hạn chế tiếp xúc khói thuốc thụ động.",
 				check=lambda data: data["smoking"] == 1,
 			),
+			# Luật 3: Tiền sử gia đình bệnh tim
 			ExpertRule(
 				key="family_history",
 				score=get_rule_weight("family_history"),
@@ -50,6 +52,7 @@ class HeartDiseaseKBS:
 				recommendation="Nên tầm soát tim mạch sớm hơn và theo dõi định kỳ nếu gia đình có người mắc bệnh tim.",
 				check=lambda data: data["family_history"] == 1,
 			),
+			# Luật 4: Bệnh tim bẩm sinh
 			ExpertRule(
 				key="congenital_heart_disease",
 				score=get_rule_weight("congenital_heart_disease"),
@@ -58,6 +61,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần theo dõi với bác sĩ tim mạch, mang theo hồ sơ chẩn đoán cũ và ưu tiên siêu âm tim hoặc kiểm tra chuyên sâu khi có triệu chứng.",
 				check=lambda data: data["congenital_heart_disease"] == 1,
 			),
+			# Luật 5: Đã được chẩn đoán tiểu đường
 			ExpertRule(
 				key="diagnosed_diabetes",
 				score=get_rule_weight("diagnosed_diabetes"),
@@ -66,6 +70,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần kiểm soát đường huyết chặt chẽ và đánh giá định kỳ các yếu tố nguy cơ tim mạch đi kèm.",
 				check=lambda data: data["diagnosed_diabetes"] == 1,
 			),
+			# Luật 6: Mức vận động thể lực thấp
 			ExpertRule(
 				key="low_physical_activity",
 				score=get_rule_weight("low_physical_activity"),
@@ -74,6 +79,7 @@ class HeartDiseaseKBS:
 				recommendation="Nên tăng dần hoạt động thể lực phù hợp, tối thiểu 150 phút mỗi tuần nếu không có chống chỉ định.",
 				check=lambda data: data["physical_activity_level"] == 0,
 			),
+			# Luật 7: Nhiều triệu chứng nghi ngờ bệnh tim (mức trung bình)
 			ExpertRule(
 				key="symptom_severity_moderate",
 				score=get_rule_weight("symptom_severity_moderate"),
@@ -82,6 +88,7 @@ class HeartDiseaseKBS:
 				recommendation="Nên tổng hợp triệu chứng với các chỉ số tim mạch để đánh giá đầy đủ hơn.",
 				check=lambda data: data["symptom_severity"] == 2,
 			),
+			# Luật 8: Triệu chứng bệnh rõ rệt (mức cao)
 			ExpertRule(
 				key="symptom_severity_high",
 				score=get_rule_weight("symptom_severity_high"),
@@ -90,6 +97,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần ưu tiên khám chuyên khoa tim mạch sớm nếu triệu chứng kéo dài hoặc nặng dần.",
 				check=lambda data: data["symptom_severity"] == 3,
 			),
+			# Luật 9: Nguy cơ tim mạch theo tuổi (trên 55)
 			ExpertRule(
 				key="age_over_55",
 				score=get_rule_weight("age_over_55"),
@@ -98,6 +106,7 @@ class HeartDiseaseKBS:
 				recommendation="Theo dõi định kỳ huyết áp, mỡ máu và đánh giá nguy cơ tim mạch hằng năm.",
 				check=lambda data: data["age"] >= 55,
 			),
+			# Luật 10: Đau thắt ngực điển hình
 			ExpertRule(
 				key="typical_angina",
 				score=get_rule_weight("typical_angina"),
@@ -106,6 +115,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần ưu tiên khám chuyên khoa tim mạch và cân nhắc nghiệm pháp gắng sức.",
 				check=lambda data: data["chest_pain_type"] == 0,
 			),
+			# Luật 11: Hồ sơ nguy cơ cao ít triệu chứng (không điển hình)
 			ExpertRule(
 				key="asymptomatic_pattern",
 				score=get_rule_weight("asymptomatic_pattern"),
@@ -114,6 +124,7 @@ class HeartDiseaseKBS:
 				recommendation="Không nên chủ quan; cần kiểm tra ECG, men tim và lịch sử nguy cơ.",
 				check=lambda data: data["chest_pain_type"] == 3,
 			),
+			# Luật 12: Huyết áp lúc nghỉ tăng cao
 			ExpertRule(
 				key="high_resting_bp",
 				score=get_rule_weight("high_resting_bp"),
@@ -122,14 +133,16 @@ class HeartDiseaseKBS:
 				recommendation="Điều chỉnh lối sống, theo dõi huyết áp tại nhà và cân nhắc điều trị theo chỉ định bác sĩ.",
 				check=lambda data: data["resting_bp"] >= 140,
 			),
+			# Luật 13: Giới tính nam
 			ExpertRule(
-				key="high_cholesterol",
-				score=get_rule_weight("high_cholesterol"),
-				title="Cholesterol máu cao",
-				message="Chỉ số cholesterol cao là yếu tố nguy cơ của xơ vữa động mạch.",
-				recommendation="Cần đánh giá lipid máu đầy đủ và điều chỉnh chế độ ăn ít mỡ bão hòa.",
-				check=lambda data: data["cholesterol"] >= 240,
+				key="sex_male",
+				score=get_rule_weight("sex_male"),
+				title="Giới tính nam",
+				message="Nam giới có nguy cơ mắc bệnh tim mạch cao hơn so với nữ giới ở cùng độ tuổi.",
+				recommendation="Tăng cường tầm soát tim mạch định kỳ và duy trì lối sống lành mạnh.",
+				check=lambda data: data["sex"] == 1,
 			),
+			# Luật 14: Đường huyết lúc đói tăng
 			ExpertRule(
 				key="fasting_blood_sugar",
 				score=get_rule_weight("fasting_blood_sugar"),
@@ -138,6 +151,7 @@ class HeartDiseaseKBS:
 				recommendation="Theo dõi đường huyết và kiểm tra HbA1c nếu chưa được đánh giá.",
 				check=lambda data: data["fasting_blood_sugar"] == 1,
 			),
+			# Luật 15: ECG lúc nghỉ bất thường
 			ExpertRule(
 				key="abnormal_ecg",
 				score=get_rule_weight("abnormal_ecg"),
@@ -146,6 +160,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần được đọc ECG bởi bác sĩ tim mạch và đối chiếu với triệu chứng lâm sàng.",
 				check=lambda data: data["resting_ecg"] in {1, 2},
 			),
+			# Luật 16: Nhịp tim tối đa thấp hơn kỳ vọng
 			ExpertRule(
 				key="low_max_heart_rate",
 				score=get_rule_weight("low_max_heart_rate"),
@@ -154,6 +169,7 @@ class HeartDiseaseKBS:
 				recommendation="Cân nhắc nghiệm pháp gắng sức nếu có triệu chứng khi vận động.",
 				check=lambda data: data["max_heart_rate"] < max(120, 220 - data["age"] - 25),
 			),
+			# Luật 17: Khó thở
 			ExpertRule(
 				key="shortness_of_breath",
 				score=get_rule_weight("shortness_of_breath"),
@@ -162,6 +178,7 @@ class HeartDiseaseKBS:
 				recommendation="Nếu khó thở xuất hiện thường xuyên hoặc tăng dần, nên khám tim mạch để làm rõ nguyên nhân.",
 				check=lambda data: data["shortness_of_breath"] == 1,
 			),
+			# Luật 18: Phù chân
 			ExpertRule(
 				key="leg_swelling",
 				score=get_rule_weight("leg_swelling"),
@@ -170,6 +187,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần đánh giá thêm chức năng tim, thận và tình trạng giữ nước nếu phù chân kéo dài.",
 				check=lambda data: data["leg_swelling"] == 1,
 			),
+			# Luật 19: Hồi hộp
 			ExpertRule(
 				key="palpitations",
 				score=get_rule_weight("palpitations"),
@@ -178,6 +196,7 @@ class HeartDiseaseKBS:
 				recommendation="Nên theo dõi điện tim hoặc Holter nếu hồi hộp xuất hiện lặp lại hoặc kèm khó chịu ngực.",
 				check=lambda data: data["palpitations"] == 1,
 			),
+			# Luật 20: Đau thắt ngực khi gắng sức
 			ExpertRule(
 				key="exercise_angina",
 				score=get_rule_weight("exercise_angina"),
@@ -186,6 +205,7 @@ class HeartDiseaseKBS:
 				recommendation="Nên được thăm khám sớm và hạn chế gắng sức mạnh trước khi có đánh giá chuyên khoa.",
 				check=lambda data: data["exercise_angina"] == 1,
 			),
+			# Luật 21: ST chênh xuống sau gắng sức
 			ExpertRule(
 				key="st_depression",
 				score=get_rule_weight("st_depression"),
@@ -194,6 +214,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần theo dõi bằng ECG gắng sức hoặc các xét nghiệm hình ảnh chức năng tim.",
 				check=lambda data: data["oldpeak"] >= 1.5,
 			),
+			# Luật 22: Độ dốc ST không thuận lợi
 			ExpertRule(
 				key="flat_or_downslope",
 				score=get_rule_weight("flat_or_downslope"),
@@ -202,6 +223,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần tổng hợp với ECG và triệu chứng để quyết định hướng can thiệp tiếp theo.",
 				check=lambda data: data["slope"] in {1, 2},
 			),
+			# Luật 23: Tổn thương mạch lớn
 			ExpertRule(
 				key="major_vessels_visible",
 				score=get_rule_weight("major_vessels_visible"),
@@ -210,6 +232,7 @@ class HeartDiseaseKBS:
 				recommendation="Cần đánh giá sâu hơn bởi bác sĩ tim mạch, có thể gồm siêu âm tim hoặc chụp mạch.",
 				check=lambda data: data["num_major_vessels"] >= 1,
 			),
+			# Luật 24: Kết quả thal bất thường
 			ExpertRule(
 				key="thal_defect",
 				score=get_rule_weight("thal_defect"),

@@ -4,30 +4,37 @@ from __future__ import annotations
 
 
 RULE_WEIGHTS: dict[str, int] = {
-	"obesity_bmi": 10,
-	"smoking": 10,
-	"family_history": 9,
-	"congenital_heart_disease": 16,
-	"diagnosed_diabetes": 11,
-	"low_physical_activity": 8,
-	"symptom_severity_moderate": 10,
-	"symptom_severity_high": 16,
-	"age_over_55": 8,
-	"typical_angina": 18,
-	"asymptomatic_pattern": 16,
-	"high_resting_bp": 10,
-	"high_cholesterol": 10,
-	"fasting_blood_sugar": 7,
-	"abnormal_ecg": 12,
-	"low_max_heart_rate": 12,
-	"shortness_of_breath": 12,
-	"leg_swelling": 11,
-	"palpitations": 8,
-	"exercise_angina": 18,
-	"st_depression": 14,
-	"flat_or_downslope": 9,
-	"major_vessels_visible": 15,
-	"thal_defect": 16,
+	# Nhóm Ưu tiên
+    "congenital_heart_disease": 100,
+
+    # Nhóm NẶNG (Dấu hiệu đỏ)
+    "typical_angina": 65,
+    "exercise_angina": 65,
+    "st_depression": 60,
+    "major_vessels_visible": 60,
+    "symptom_severity_high": 35,
+    "shortness_of_breath": 35,
+    "leg_swelling": 35,
+
+    # Nhóm TRUNG BÌNH (Đã tăng cường - Vùng đệm)
+    "high_resting_bp": 20,
+    "diagnosed_diabetes": 20,
+    "thal_defect": 20,
+    "symptom_severity_moderate": 15,
+    "abnormal_ecg": 15,
+    "fasting_blood_sugar": 15,
+    "flat_or_downslope": 15,
+    "low_max_heart_rate": 10,
+    "palpitations": 10,
+
+    # Nhóm NHẸ (Yếu tố nền - Không gây nhiễu)
+    "smoking": 2,
+    "family_history": 2,
+    "asymptomatic_pattern": 1,
+    "obesity_bmi": 1,
+    "age_over_55": 1,
+    "low_physical_activity": 1,
+    "sex_male": 1,
 }
 
 
