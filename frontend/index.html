@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dự đoán bệnh tim</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <section class="hero-panel">
+            
+            <h1>Dự đoán bệnh tim</h1>
+            <p class="hero-copy">
+                Nhập các chỉ số tim mạch để hệ thống kết hợp luật chuyên gia và mô hình dự đoán,
+                từ đó đưa ra mức nguy cơ và khuyến nghị tiếp theo.
+            </p>
+            <div class="hero-actions">
+                <button id="check-api" type="button" class="ghost-button">Kiểm tra kết nối API</button>
+                <span id="api-status" class="status-pill hidden">Đang kiểm tra API...</span>
+            </div>
+            <div class="hero-metrics">
+                <article>
+                    <span>24</span>
+                    <p>chỉ số lâm sàng đầu vào</p>
+                </article>
+                <article>
+                    <span>2</span>
+                    <p>lớp phân tích: luật + ML</p>
+                </article>
+                <article>
+                    <span>1</span>
+                    <p>báo cáo tổng hợp cho từng ca</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="content-grid">
+            <form id="prediction-form" class="card form-card">
+                <div class="card-heading">
+                    <p class="eyebrow">Dữ liệu vào</p>
+                    <h2>Biểu mẫu nhập chỉ số tim mạch</h2>
+                </div>
+
+                <div class="form-grid">
+                    <label>
+                        <span>Tuổi</span>
+                        <input type="number" name="age" min="0" max="120" required>
+                    </label>
+                    <label>
+                        <span>Giới tính</span>
+                        <select name="sex" required></select>
+                    </label>
+                    <label>
+                        <span>Cân nặng (kg)</span>
+                        <input type="number" name="weight" min="0" max="500" step="0.1" required>
+                    </label>
+                    <label>
+                        <span>Chiều cao (cm)</span>
+                        <input type="number" name="height" min="0" max="250" step="0.1" required>
+                    </label>
+                    <label>
+                        <span>Hút thuốc</span>
+                        <select name="smoking" required></select>
+                    </label>
+                    <label>
+                        <span>Tiền sử gia đình bệnh tim</span>
+                        <select name="family_history" required></select>
+                    </label>
+                    <label>
+                        <span>Có bệnh tim bẩm sinh</span>
+                        <select name="congenital_heart_disease" required></select>
+                    </label>
+                    <label>
+                        <span>Đã chẩn đoán tiểu đường</span>
+                        <select name="diagnosed_diabetes" required></select>
+                    </label>
+                    <label>
+                        <span>Mức độ vận động thể lực</span>
+                        <select name="physical_activity_level" required></select>
+                    </label>
+                    <label>
+                        <span>Mức độ biểu hiện triệu chứng bệnh</span>
+                        <select name="symptom_severity" required></select>
+                    </label>
+                    <label>
+                        <span>Kiểu đau ngực</span>
+                        <select name="chest_pain_type" required></select>
+                    </label>
+                    <label>
+                        <span>Huyết áp lúc nghỉ</span>
+                        <input type="number" name="resting_bp" min="0" max="300" placeholder="100 – 200 mmHg" required>
+                    </label>
+                    <label>
+                        <span>Cholesterol toàn phần</span>
+                        <input type="number" name="cholesterol" min="0" max="1000" placeholder="150 – 300 mg/dL" required>
+                    </label>
+                    <label>
+                        <span>Đường huyết lúc đói</span>
+                        <select name="fasting_blood_sugar" required></select>
+                    </label>
+                    <label>
+                        <span>ECG lúc nghỉ</span>
+                        <select name="resting_ecg" required></select>
+                    </label>
+                    <label>
+                        <span>Nhịp tim tối đa</span>
+                        <input type="number" name="max_heart_rate" min="0" max="300" placeholder="120 – 220 nhịp/phút" required>
+                    </label>
+                    <label>
+                        <span>Triệu chứng khó thở</span>
+                        <select name="shortness_of_breath" required></select>
+                    </label>
+                    <label>
+                        <span>Triệu chứng phù chân</span>
+                        <select name="leg_swelling" required></select>
+                    </label>
+                    <label>
+                        <span>Triệu chứng hồi hộp</span>
+                        <select name="palpitations" required></select>
+                    </label>
+                    <label>
+                        <span>Đau ngực khi gắng sức</span>
+                        <select name="exercise_angina" required></select>
+                    </label>
+                    <label>
+                        <span>Độ chênh ST (Oldpeak)</span>
+                        <input type="number" name="oldpeak" min="0" max="3" step="0.1" placeholder="0 – 3" required>
+                    </label>
+                    <label>
+                        <span>Độ dốc ST</span>
+                        <select name="slope" required></select>
+                    </label>
+                    <label>
+                        <span>Số mạch lớn ảnh hưởng</span>
+                        <input type="number" name="num_major_vessels" min="0" max="3" placeholder="0 – 3" required>
+                    </label>
+                    <label>
+                        <span>Kết quả Thal</span>
+                        <select name="thal" required></select>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-button">Phân tích nguy cơ</button>
+                    <button id="reset-form" type="button" class="ghost-button">Nhập ca mới</button>
+                </div>
+            </form>
+
+            <section class="card result-card">
+                <div class="card-heading">
+                    <p class="eyebrow">Kết quả</p>
+                    <h2>Kết quả đánh giá</h2>
+                </div>
+
+                <div id="empty-state" class="empty-state">
+                    Gửi biểu mẫu để nhận kết quả từ hệ chuyên gia, xác suất ML và khuyến nghị xử trí.
+                </div>
+
+                <div id="result-panel" class="result-panel hidden">
+                    <section class="summary-footer">
+                        <div class="risk-overview">
+                            <div>
+                                <p class="result-label">Mức nguy cơ</p>
+                                <h3 id="risk-label">-</h3>
+                                <ul id="result-summary" class="result-summary assessment-list"></ul>
+                            </div>
+                            <div class="score-ring">
+                                <span id="risk-percent">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-block">
+                            <div class="progress-track">
+                                <div id="progress-bar" class="progress-bar"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="detail-grid">
+                        <article>
+                            <p class="result-label">Hệ chuyên gia</p>
+                            <strong id="expert-score">0</strong>
+                            <span>Điểm từ các luật suy luận</span>
+                        </article>
+                        <article>
+                            <p class="result-label">Học máy</p>
+                            <strong id="ml-score">Không có</strong>
+                            <span id="ml-message">Chưa sử dụng mô hình</span>
+                        </article>
+                        <article>
+                            <p class="result-label">Độ tin cậy</p>
+                            <strong id="ml-accuracy">Chưa có</strong>
+                            <span id="ml-accuracy-note">So với dữ liệu hiện có</span>
+                        </article>
+                    </div>
+
+                    <section>
+                        <p class="section-title">Các luật đã kích hoạt</p>
+                        <ul id="rule-list" class="insight-list"></ul>
+                    </section>
+
+                    <section>
+                        <p class="section-title">Khuyến nghị</p>
+                        <ul id="recommendation-list" class="insight-list"></ul>
+                    </section>
+                </div>
+            </section>
+        </section>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>
