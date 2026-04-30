@@ -135,7 +135,6 @@ OPTIONS = {
 	],
 }
 
-
 class HeartMetricsInput(BaseModel):
 	age: int = Field(..., ge=0, le=120)
 	sex: int = Field(..., ge=0, le=1)
