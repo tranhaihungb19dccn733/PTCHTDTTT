@@ -708,7 +708,7 @@ def build_case_confidence(
 
 
 def build_final_assessment(input_data: dict[str, Any], expert_result: dict[str, Any], ml_result: dict[str, Any]) -> dict[str, Any]:
-    """Kết hợp điểm hệ chuyên gia và xác suất ML, tạo summary theo mức nguy cơ cuối cùng."""
+    """Kết hợp điểm hệ chuyên gia và xác suất ML thành đánh giá nguy cơ cuối cùng bằng cách lấy mức cao nhất."""
     if input_data["congenital_heart_disease"] == 1:
         return {
             "risk_level": "high",
@@ -747,33 +747,11 @@ def build_final_assessment(input_data: dict[str, Any], expert_result: dict[str, 
     # Sử dụng điểm cao nhất để hiển thị phần trăm
     final_risk_percent = max(expert_score, ml_score)
 
-    # Tạo summary với final_risk_level
-    sex_label = "nam" if input_data["sex"] == 1 else "nữ"
-    triggered = expert_result.get("rule_hits", [])
-    
-    if not triggered:
-        summary = (
-            f"Hồ sơ của bệnh nhân {sex_label}, {input_data['age']} tuổi hiện không kích hoạt các luật nguy cơ lớn. "
-            "Vẫn nên duy trì kiểm tra sức khỏe tim mạch định kỳ."
-        )
-    else:
-        top_findings = ", ".join(item["title"].lower() for item in triggered[:3])
-        risk_text = {
-            "low": "nguy cơ thấp",
-            "moderate": "nguy cơ trung bình",
-            "high": "nguy cơ cao",
-        }[final_risk_level]  # ← Dùng final_risk_level thay vì expert_result["risk_level"]
-        summary = (
-            f"Hệ thống đánh giá bệnh nhân {sex_label}, {input_data['age']} tuổi ở mức {risk_text}. "
-            f"Các yếu tố nổi bật: {top_findings}."
-        )
-
     return {
         "risk_level": final_risk_level,
         "risk_label": risk_label,
         "risk_percent": final_risk_percent,
         "next_step": next_step_for_risk(final_risk_level),
-        "summary": summary,  # ← Thêm summary vào đây để override summary của KBS
     }
 
 

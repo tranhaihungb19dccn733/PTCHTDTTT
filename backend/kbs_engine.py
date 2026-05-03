@@ -10,6 +10,19 @@ from rule_weights import RULE_WEIGHTS, get_rule_weight
 
 RuleCheck = Callable[[dict], bool]
 
+# Các luật loại trừ lẫn nhau: chỉ đúng một luật trong mỗi nhóm có thể kích hoạt
+# cùng lúc (vì chúng kiểm tra cùng một trường với các giá trị khác nhau).
+# Dùng để tính max_score thực tế cho nhánh "không có chỉ số vàng".
+_NON_GOLDEN_MUTUAL_EXCLUSIVE_GROUPS: list[frozenset[str]] = [
+	frozenset({"very_low_physical_activity", "low_physical_activity"}),
+	frozenset({"atypical_angina", "non_anginal_pain", "asymptomatic_pattern"}),
+	frozenset({"ecg_st_abnormal", "ecg_lvh"}),
+	frozenset({"st_depression_mild", "st_depression_moderate"}),
+	frozenset({"slope_flat", "slope_downslope"}),
+	frozenset({"major_vessels_1", "major_vessels_2"}),
+	frozenset({"high_cholesterol", "borderline_cholesterol"}),
+]
+
 
 @dataclass(frozen=True)
 class ExpertRule:
@@ -277,7 +290,7 @@ class HeartDiseaseKBS:
 			ExpertRule(
 				key="borderline_cholesterol",
 				score=get_rule_weight("borderline_cholesterol"),
-				title="Cholesterol mức giới hạn (200–239 mg/dL)",
+				title="Cholesterol mức giới hạn (0–1000 mg/dL)",
 				message="Cholesterol toàn phần ở mức giới hạn, có thể làm tăng nguy cơ xơ vữa mạch máu nếu đi kèm yếu tố nguy cơ khác.",
 				recommendation="Nên điều chỉnh chế độ ăn, giảm chất béo bão hòa, tăng vận động và theo dõi mỡ máu định kỳ.",
 				check=lambda data: 200 <= data["cholesterol"] < 240,
@@ -347,7 +360,26 @@ class HeartDiseaseKBS:
 			),
 		]
 		self._validate_rule_weights()
-		self.max_score = sum(rule.score for rule in self.rules)
+
+		# Tính max_score thực tế cho nhánh "không có chỉ số vàng":
+		# loại bỏ các luật golden/congenital (chúng dùng nhánh riêng),
+		# rồi trong mỗi nhóm loại trừ lẫn nhau chỉ lấy luật có điểm cao nhất.
+		_golden_keys = frozenset({
+			"congenital_heart_disease",
+			"typical_angina",
+			"major_vessels_3",
+			"st_depression_severe",
+			"thal_defect",
+		})
+		_non_golden = [r for r in self.rules if r.key not in _golden_keys]
+		_grouped: set[str] = set()
+		_group_max = 0.0
+		for _group in _NON_GOLDEN_MUTUAL_EXCLUSIVE_GROUPS:
+			_candidates = [r for r in _non_golden if r.key in _group]
+			if _candidates:
+				_group_max += max(r.score for r in _candidates)
+				_grouped.update(r.key for r in _candidates)
+		self.max_score = _group_max + sum(r.score for r in _non_golden if r.key not in _grouped)
 
 	def _validate_rule_weights(self) -> None:
 		rule_keys = {rule.key for rule in self.rules}

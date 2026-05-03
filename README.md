@@ -104,7 +104,6 @@ flowchart LR
 - `GET /api/options`: lấy danh sách lựa chọn cho các trường `select` trên form.
 - `POST /api/predict`: gửi dữ liệu biểu mẫu để phân tích nguy cơ.
 - `GET /api/predict/sample`: lấy một ca dữ liệu mẫu.
-- `GET /api/demo-cases`: lấy danh sách ca minh họa dựng sẵn.
 
 ## Yêu cầu hệ thống
 

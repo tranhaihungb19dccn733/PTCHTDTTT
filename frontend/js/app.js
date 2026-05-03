@@ -314,7 +314,7 @@ function renderPrediction(data) {
 
 	const { final_assessment: finalAssessment, expert_system: expertSystem, machine_learning: machineLearning } = data;
 	const percent = finalAssessment.risk_percent;
-	const summaryLines = buildSummaryLines(finalAssessment.summary, finalAssessment.next_step);
+	const summaryLines = buildSummaryLines(expertSystem.summary, finalAssessment.next_step);
 	const referenceMetrics = machineLearning.reference_metrics;
 	const caseConfidence = finalAssessment.confidence;
 
@@ -391,4 +391,38 @@ function setStatus(message, state) {
 
 	statusElement.style.background = "rgba(217, 93, 57, 0.12)";
 	statusElement.style.color = "#962f15";
+}
+
+
+async function loadDemoCases() {
+	const container = document.querySelector("#demo-cases-list");
+	const loading = document.querySelector("#demo-cases-loading");
+
+	try {
+		const response = await fetch(`${API_BASE_URL}/api/demo-cases`);
+		if (!response.ok) throw new Error();
+
+		const data = await response.json();
+		if (loading) loading.remove();
+
+		data.items.forEach((item) => {
+			const badgeClass = item.risk_percent < 40 ? "low" : item.risk_percent < 70 ? "moderate" : "high";
+			const card = document.createElement("button");
+			card.type = "button";
+			card.className = "demo-case-card";
+			card.innerHTML = `
+				<p class="demo-case-title">${item.title}</p>
+				<p class="demo-case-desc">${item.description}</p>
+				<span class="demo-case-badge ${badgeClass}">${item.risk_label} · ${item.risk_percent}%</span>
+			`;
+			card.addEventListener("click", () => {
+				fillForm(item.payload);
+				form.scrollIntoView({ behavior: "smooth", block: "start" });
+				setStatus(`Đã nạp ca minh họa: ${item.title}. Nhấn "Phân tích nguy cơ" để xem kết quả.`, "ok");
+			});
+			container.appendChild(card);
+		});
+	} catch {
+		if (loading) loading.textContent = "Không thể tải ca minh họa (backend chưa chạy).";
+	}
 }
