@@ -583,7 +583,7 @@ def risk_level_from_score(score: float) -> str:
 	"""Chuyển điểm nguy cơ (%) thành nhãn mức nguy cơ: 'high', 'moderate' hoặc 'low'."""
 	if score >= 70:
 		return "high"
-	if score >= 30:
+	if score >= 40:
 		return "moderate"
 	return "low"
 
@@ -708,32 +708,51 @@ def build_case_confidence(
 
 
 def build_final_assessment(input_data: dict[str, Any], expert_result: dict[str, Any], ml_result: dict[str, Any]) -> dict[str, Any]:
-	"""Kết hợp điểm hệ chuyên gia và xác suất ML thành đánh giá nguy cơ cuối cùng (mức, nhãn, % và bước tiếp theo)."""
-	if input_data["congenital_heart_disease"] == 1:
-		return {
-			"risk_level": "high",
-			"risk_label": "Bệnh tim xác định",
-			"risk_percent": 100.0,
-			"next_step": "Cần khám chuyên khoa tim mạch ngay và theo dõi điều trị theo hồ sơ tim bẩm sinh hiện có.",
-		}
+    """Kết hợp điểm hệ chuyên gia và xác suất ML thành đánh giá nguy cơ cuối cùng bằng cách lấy mức cao nhất."""
+    if input_data["congenital_heart_disease"] == 1:
+        return {
+            "risk_level": "high",
+            "risk_label": "Bệnh tim xác định",
+            "risk_percent": 100.0,
+            "next_step": "Cần khám chuyên khoa tim mạch ngay và theo dõi điều trị theo hồ sơ tim bẩm sinh hiện có.",
+        }
 
-	expert_score = expert_result["normalized_score"]
-	ml_score = ml_result["probability"] if ml_result["probability"] is not None else expert_score
-	blended_score = round((expert_score * 0.6) + (ml_score * 0.4), 1)
+    expert_score = expert_result["normalized_score"]
+    ml_score = ml_result["probability"] if ml_result["probability"] is not None else expert_score
 
-	risk_level = risk_level_from_score(blended_score)
-	risk_label = {
-		"low": "Nguy cơ thấp",
-		"moderate": "Nguy cơ trung bình",
-		"high": "Nguy cơ cao",
-	}[risk_level]
+    # Phân loại từng chỉ số riêng biệt
+    def categorize_score(score: float) -> str:
+        """Phân loại điểm thành risk_level: 'high', 'moderate', hoặc 'low'"""
+        if score >= 70:
+            return "high"
+        elif score >= 40:
+            return "moderate"
+        else:
+            return "low"
 
-	return {
-		"risk_level": risk_level,
-		"risk_label": risk_label,
-		"risk_percent": blended_score,
-		"next_step": next_step_for_risk(risk_level),
-	}
+    expert_level = categorize_score(expert_score)
+    ml_level = categorize_score(ml_score)
+
+    # Lấy mức cao hơn giữa expert và ml
+    priority = {"low": 0, "moderate": 1, "high": 2}
+    final_risk_level = max(expert_level, ml_level, key=lambda x: priority[x])
+
+    # Map thành nhãn hiển thị
+    risk_label = {
+        "low": "Nguy cơ thấp",
+        "moderate": "Nguy cơ trung bình",
+        "high": "Nguy cơ cao",
+    }[final_risk_level]
+
+    # Sử dụng điểm cao nhất để hiển thị phần trăm
+    final_risk_percent = max(expert_score, ml_score)
+
+    return {
+        "risk_level": final_risk_level,
+        "risk_label": risk_label,
+        "risk_percent": final_risk_percent,
+        "next_step": next_step_for_risk(final_risk_level),
+    }
 
 
 def build_prediction_response(input_data: dict[str, Any]) -> dict[str, Any]:

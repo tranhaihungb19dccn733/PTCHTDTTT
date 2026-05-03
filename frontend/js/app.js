@@ -297,7 +297,7 @@ function resetPredictionView() {
 }
 
 function getRiskDisplayLabel(percent) {
-	if (percent < 30) {
+	if (percent < 40) {
 		return "Nguy cơ thấp";
 	}
 
