@@ -38,10 +38,10 @@ heart-disease-expert-system/
 
 ## Chức năng hiện có
 
-- Form nhập `24` chỉ số tim mạch và triệu chứng mở rộng.
+- Form nhập `23` chỉ số tim mạch và triệu chứng mở rộng.
 - Backend FastAPI nhận dữ liệu và trả kết quả dự đoán.
 - Hệ chuyên gia chấm điểm nguy cơ theo luật suy luận.
-- Trọng số 24 luật được cấu hình tập trung trong `backend/rule_weights.py`.
+- Trọng số 23 luật được cấu hình tập trung trong `backend/rule_weights.py`.
 - Mô hình Random Forest dự đoán bổ sung trên bộ dữ liệu Cleveland.
 - Phần `Độ tin cậy` được cập nhật theo từng ca phân tích, dựa trên mức nhất quán giữa hệ chuyên gia, xác suất ML và độ phủ dữ liệu huấn luyện.
 - Tự lưu dữ liệu người dùng nhập vào file dữ liệu mở rộng để huấn luyện sau này.

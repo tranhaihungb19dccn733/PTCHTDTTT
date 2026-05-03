@@ -33,11 +33,6 @@ RULE_WEIGHTS: dict[str, float] = {
     "leg_swelling":        15.0,   # Phù chân
 
     # ── NHÓM TRUNG BÌNH ────────────────────────────────────────────────────────
-    # Mức độ biểu hiện triệu chứng (symptom_severity) — 4 mức, điểm tăng dần
-    "symptom_severity_high":     8.0,
-    "symptom_severity_moderate": 5.0,
-    "symptom_severity_mild":     3.0,
-    #                                 # Mức 0: Bình thường              → không kích hoạt luật
 
     # Huyết áp và chuyển hóa
     "high_resting_bp":    5.0,

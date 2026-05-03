@@ -24,7 +24,7 @@
             </div>
             <div class="hero-metrics">
                 <article>
-                    <span>24</span>
+                    <span>23</span>
                     <p>chỉ số lâm sàng đầu vào</p>
                 </article>
                 <article>
@@ -81,10 +81,6 @@
                     <label>
                         <span>Mức độ vận động thể lực</span>
                         <select name="physical_activity_level" required></select>
-                    </label>
-                    <label>
-                        <span>Mức độ biểu hiện triệu chứng bệnh</span>
-                        <select name="symptom_severity" required></select>
                     </label>
                     <label>
                         <span>Kiểu đau ngực</span>
@@ -169,8 +165,8 @@
                                 <ul id="result-summary" class="result-summary assessment-list"></ul>
                             </div>
                             <div class="score-ring">
-                                <span id="risk-percent">0%</span>
-                            </div>
+                            <span id="risk-percent">-</span>
+                        	</div>
                         </div>
 
                         <div class="progress-block">
@@ -191,7 +187,7 @@
                             <strong id="ml-score">Không có</strong>
                             <span id="ml-message">Chưa sử dụng mô hình</span>
                         </article>
-                        <article>
+                        <article id="confidence-card">
                             <p class="result-label">Độ tin cậy</p>
                             <strong id="ml-accuracy">Chưa có</strong>
                             <span id="ml-accuracy-note">So với dữ liệu hiện có</span>

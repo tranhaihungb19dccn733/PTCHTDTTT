@@ -112,41 +112,6 @@ class HeartDiseaseKBS:
 				check=lambda data: data["physical_activity_level"] == 1,
 			),
 			# [Mức 2 — Cao: không kích hoạt luật, không cộng điểm nguy cơ]
-
-			# ── MỨC ĐỘ BIỂU HIỆN TRIỆU CHỨNG (symptom_severity) ────────────────
-			# 4 mức: 0=Bình thường, 1=Nhẹ, 2=Trung bình, 3=Rõ rệt → mức 1-3 kích hoạt
-			# Luật 9a: Triệu chứng mức 1 — Nhẹ
-			ExpertRule(
-				key="symptom_severity_mild",
-				score=get_rule_weight("symptom_severity_mild"),
-				title="Mức độ triệu chứng: Nhẹ",
-				message="Có dấu hiệu nhẹ hoặc thoáng qua, chưa ảnh hưởng nhiều nhưng cần theo dõi.",
-				recommendation="Ghi nhận và theo dõi sự tiến triển của triệu chứng; khám nếu dấu hiệu tăng nặng.",
-				check=lambda data: data["symptom_severity"] == 1,
-			),
-			# Luật 9b: Triệu chứng mức 2 — Trung bình
-			ExpertRule(
-				key="symptom_severity_moderate",
-				score=get_rule_weight("symptom_severity_moderate"),
-				title="Mức độ triệu chứng: Trung bình",
-				message="Người bệnh đang có nhiều triệu chứng gợi ý bất thường tim mạch cần được theo dõi kỹ.",
-				recommendation="Nên tổng hợp triệu chứng với các chỉ số tim mạch để đánh giá đầy đủ hơn.",
-				check=lambda data: data["symptom_severity"] == 2,
-			),
-			# Luật 9c: Triệu chứng mức 3 — Rõ rệt
-			ExpertRule(
-				key="symptom_severity_high",
-				score=get_rule_weight("symptom_severity_high"),
-				title="Mức độ triệu chứng: Rõ rệt",
-				message="Mức biểu hiện triệu chứng rõ rệt làm tăng khả năng người bệnh đã ở giai đoạn nguy cơ cao hoặc đã mắc bệnh.",
-				recommendation="Cần ưu tiên khám chuyên khoa tim mạch sớm nếu triệu chứng kéo dài hoặc nặng dần.",
-				check=lambda data: data["symptom_severity"] == 3,
-			),
-			# [Mức 0 — Bình thường: không kích hoạt luật]
-
-			# ── KIỂU ĐAU NGỰC (chest_pain_type) ─────────────────────────────────
-			# 4 kiểu: 0=Điển hình, 1=Không điển hình, 2=Không do thắt ngực, 3=Không triệu chứng
-			# Luật 10a: Kiểu 0 — Đau thắt ngực điển hình (nguy cơ cao nhất)
 			ExpertRule(
 				key="typical_angina",
 				score=get_rule_weight("typical_angina"),
