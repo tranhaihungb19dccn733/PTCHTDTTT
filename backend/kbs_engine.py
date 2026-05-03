@@ -264,6 +264,24 @@ class HeartDiseaseKBS:
 				recommendation="Điều chỉnh lối sống, theo dõi huyết áp tại nhà và cân nhắc điều trị theo chỉ định bác sĩ.",
 				check=lambda data: data["resting_bp"] >= 140,
 			),
+			# Luật 15b: Cholesterol cao (≥ 240 mg/dL)
+			ExpertRule(
+				key="high_cholesterol",
+				score=get_rule_weight("high_cholesterol"),
+				title="Cholesterol cao (≥ 240 mg/dL)",
+				message="Nồng độ mỡ máu cao là nguyên nhân chính hình thành các mảng xơ vữa làm hẹp lòng mạch.",
+				recommendation="Nên khám bác sĩ để đánh giá lipid máu đầy đủ, kiểm soát chế độ ăn, vận động và cân nhắc điều trị nếu cần.",
+				check=lambda data: data["cholesterol"] >= 240,
+			),
+			# Luật 15c: Cholesterol mức giới hạn (200–239 mg/dL)
+			ExpertRule(
+				key="borderline_cholesterol",
+				score=get_rule_weight("borderline_cholesterol"),
+				title="Cholesterol mức giới hạn (200–239 mg/dL)",
+				message="Cholesterol toàn phần ở mức giới hạn, có thể làm tăng nguy cơ xơ vữa mạch máu nếu đi kèm yếu tố nguy cơ khác.",
+				recommendation="Nên điều chỉnh chế độ ăn, giảm chất béo bão hòa, tăng vận động và theo dõi mỡ máu định kỳ.",
+				check=lambda data: 200 <= data["cholesterol"] < 240,
+			),
 			# Luật 16: Đường huyết lúc đói tăng
 			ExpertRule(
 				key="fasting_blood_sugar",
@@ -385,7 +403,7 @@ class HeartDiseaseKBS:
 			"""
 			if num_golden <= 0:
 				return 0
-			nonlinear_map = {1: 70, 2: 85, 3: 95, 4: 100}
+			nonlinear_map = {1: 70, 2: 85, 3: 95, 4: 99}
 			return nonlinear_map.get(num_golden, 100)
 
 		if data["congenital_heart_disease"] == 1:
@@ -393,8 +411,20 @@ class HeartDiseaseKBS:
 			normalized_score = 100.0
 			risk_level = "high"
 		elif golden_activated:
-			# Nếu có ít nhất 1 chỉ số vàng, dùng điểm phi tuyến
-			normalized_score = nonlinear_golden_score(len(golden_activated))
+			# Nền điểm phi tuyến theo số chỉ số vàng được kích hoạt
+			golden_base = nonlinear_golden_score(len(golden_activated))
+			# Cộng thêm phần % kích hoạt của các luật NON-golden lên phần còn lại
+			non_golden_triggered = sum(
+				r["score"] for r in triggered if r["key"] not in golden_keys
+			)
+			non_golden_max = sum(
+				rule.score for rule in self.rules if rule.key not in golden_keys
+			)
+			if non_golden_max > 0:
+				bonus = (non_golden_triggered / non_golden_max) * (100 - golden_base)
+			else:
+				bonus = 0
+			normalized_score = min(100.0, round(golden_base + bonus, 1))
 			risk_level = self._risk_level(normalized_score)
 		else:
 			# Nếu không có chỉ số vàng, dùng tổng điểm các luật khác (chuẩn hóa về 100)

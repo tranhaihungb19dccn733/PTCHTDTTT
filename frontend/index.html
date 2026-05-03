@@ -70,10 +70,7 @@
                         <span>Tiền sử gia đình bệnh tim</span>
                         <select name="family_history" required></select>
                     </label>
-                    <label>
-                        <span>Có bệnh tim bẩm sinh</span>
-                        <select name="congenital_heart_disease" required></select>
-                    </label>
+                    
                     <label>
                         <span>Đã chẩn đoán tiểu đường</span>
                         <select name="diagnosed_diabetes" required></select>
@@ -88,11 +85,11 @@
                     </label>
                     <label>
                         <span>Huyết áp lúc nghỉ</span>
-                        <input type="number" name="resting_bp" min="0" max="300" placeholder="100 – 200 mmHg" required>
+                        <input type="number" name="resting_bp" min="0" max="300" placeholder="0 – 300 mmHg" required>
                     </label>
                     <label>
                         <span>Cholesterol toàn phần</span>
-                        <input type="number" name="cholesterol" min="0" max="1000" placeholder="150 – 300 mg/dL" required>
+                        <input type="number" name="cholesterol" min="0" max="1000" placeholder="0 – 1000 mg/dL" required>
                     </label>
                     <label>
                         <span>Đường huyết lúc đói</span>
@@ -104,7 +101,7 @@
                     </label>
                     <label>
                         <span>Nhịp tim tối đa</span>
-                        <input type="number" name="max_heart_rate" min="0" max="300" placeholder="120 – 220 nhịp/phút" required>
+                        <input type="number" name="max_heart_rate" min="0" max="300" placeholder="0 – 300 nhịp/phút" required>
                     </label>
                     <label>
                         <span>Triệu chứng khó thở</span>
@@ -124,7 +121,7 @@
                     </label>
                     <label>
                         <span>Độ chênh ST (Oldpeak)</span>
-                        <input type="number" name="oldpeak" min="0" max="3" step="0.1" placeholder="0 – 3" required>
+                        <input type="number" name="oldpeak" min="0" max="5" step="0.1" placeholder="0 – 5" required>
                     </label>
                     <label>
                         <span>Độ dốc ST</span>
@@ -132,14 +129,17 @@
                     </label>
                     <label>
                         <span>Số mạch lớn ảnh hưởng</span>
-                        <input type="number" name="num_major_vessels" min="0" max="3" placeholder="0 – 3" required>
+                        <input type="number" name="num_major_vessels" min="0" max="5" placeholder="0 – 5" required>
                     </label>
                     <label>
                         <span>Kết quả Thal</span>
                         <select name="thal" required></select>
                     </label>
+                    <label>
+                        <span>Có bệnh tim bẩm sinh</span>
+                        <select name="congenital_heart_disease" required></select>
+                    </label>
                 </div>
-
                 <div class="form-actions">
                     <button type="submit" class="primary-button">Phân tích nguy cơ</button>
                     <button id="reset-form" type="button" class="ghost-button">Nhập ca mới</button>
@@ -195,7 +195,7 @@
                     </div>
 
                     <section>
-                        <p class="section-title">Các luật đã kích hoạt</p>
+                        <p class="section-title">Giải thích</p>
                         <ul id="rule-list" class="insight-list"></ul>
                     </section>
 

@@ -22,10 +22,10 @@ RULE_WEIGHTS: dict[str, float] = {
 
     "exercise_angina":   25.0,   # Đau ngực khi gắng sức
 
-    "major_vessels_2":   8.0,    # 2 mạch lớn bị ảnh hưởng (moderate)
+    "major_vessels_2":    6.0,    # 2 mạch lớn bị ảnh hưởng (moderate)
     "major_vessels_1":   3.0,    # 1 mạch lớn bị ảnh hưởng (mild)
 
-    "st_depression_moderate": 8.0,   # ST chênh vừa (moderate)
+    "st_depression_moderate": 15.0,  # ST chênh vừa (moderate)
     "st_depression_mild":     3.0,   # ST chênh nhẹ (mild)
 
     # Triệu chứng đi kèm (nhị phân Có/Không)
@@ -35,20 +35,22 @@ RULE_WEIGHTS: dict[str, float] = {
     # ── NHÓM TRUNG BÌNH ────────────────────────────────────────────────────────
 
     # Huyết áp và chuyển hóa
-    "high_resting_bp":    5.0,
-    "diagnosed_diabetes": 5.0,
-    "fasting_blood_sugar": 4.0,
+    "high_resting_bp":      5.0,
+    "high_cholesterol":     5.0,   # Cholesterol ≥ 240 mg/dL
+    "borderline_cholesterol": 2.0, # Cholesterol 200–239 mg/dL
+    "diagnosed_diabetes":   5.0,
+    "fasting_blood_sugar":  4.0,
 
     # ECG lúc nghỉ (resting_ecg) — 2 mức bất thường, điểm khác nhau
-    "ecg_lvh":         5.0,
-    "ecg_st_abnormal": 4.0,
+    "ecg_lvh":         15.0,   # Phì đại thất trái (mức nặng hơn)
+    "ecg_st_abnormal":  5.0,   # ST-T bất thường
 
     # Độ dốc ST (slope) — 2 mức bất lợi, điểm khác nhau
     "slope_downslope": 4.0,
     "slope_flat":      3.0,
 
     "low_max_heart_rate": 3.0,
-    "palpitations":      3.0,
+    "palpitations":      4.0,
 
     # ── NHÓM NHẸ (Yếu tố nền) ─────────────────────────────────────────────────
     # Mức độ vận động thể lực (physical_activity_level) — 2 mức nguy cơ
