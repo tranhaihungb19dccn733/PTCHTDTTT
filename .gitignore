@@ -9,3 +9,4 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .history
+"backend/ml_model/data/heart_disease_extended_inputs.csv" 

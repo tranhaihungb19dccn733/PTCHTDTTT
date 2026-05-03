@@ -417,7 +417,7 @@ class HeartDiseaseKBS:
 	def _risk_level(self, normalized_score: float) -> str:
 		if normalized_score >= 70:
 			return "high"
-		if normalized_score >= 40:
+		if normalized_score >= 430:
 			return "moderate"
 		return "low"
 
