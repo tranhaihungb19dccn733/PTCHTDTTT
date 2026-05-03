@@ -314,7 +314,7 @@ function renderPrediction(data) {
 
 	const { final_assessment: finalAssessment, expert_system: expertSystem, machine_learning: machineLearning } = data;
 	const percent = finalAssessment.risk_percent;
-	const summaryLines = buildSummaryLines(expertSystem.summary, finalAssessment.next_step);
+	const summaryLines = buildSummaryLines(finalAssessment.summary, finalAssessment.next_step);
 	const referenceMetrics = machineLearning.reference_metrics;
 	const caseConfidence = finalAssessment.confidence;
 
