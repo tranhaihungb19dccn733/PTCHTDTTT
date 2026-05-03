@@ -276,7 +276,7 @@ select:focus {
 }
 
 .score-ring {
-    display: grid;
+    display: none;
     place-items: center;
     min-width: 118px;
     width: 118px;
@@ -301,7 +301,9 @@ select:focus {
     font-size: 1.4rem;
     font-weight: 700;
 }
-
+#confidence-card {
+    display: none;
+}
 .progress-block {
     margin: 22px 0;
 }

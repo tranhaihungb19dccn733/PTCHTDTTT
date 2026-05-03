@@ -37,7 +37,6 @@ USER_TRAINING_FIELDS = [
 	"congenital_heart_disease",
 	"diagnosed_diabetes",
 	"physical_activity_level",
-	"symptom_severity",
 	"chest_pain_type",
 	"resting_bp",
 	"cholesterol",
@@ -85,12 +84,6 @@ OPTIONS = {
 		{"value": 0, "label": "Thấp"},
 		{"value": 1, "label": "Trung bình"},
 		{"value": 2, "label": "Cao"},
-	],
-	"symptom_severity": [
-		{"value": 0, "label": "Bình thường, hầu như không có triệu chứng"},
-		{"value": 1, "label": "Có dấu hiệu nhẹ hoặc thoáng qua"},
-		{"value": 2, "label": "Có nhiều triệu chứng nghi ngờ bệnh tim"},
-		{"value": 3, "label": "Triệu chứng rõ rệt, nghi ngờ đã mắc bệnh"},
 	],
 	"chest_pain_type": [
 		{"value": 0, "label": "Đau thắt ngực điển hình"},
@@ -145,7 +138,6 @@ class HeartMetricsInput(BaseModel):
 	congenital_heart_disease: int = Field(..., ge=0, le=1)
 	diagnosed_diabetes: int = Field(..., ge=0, le=1)
 	physical_activity_level: int = Field(..., ge=0, le=2)
-	symptom_severity: int = Field(..., ge=0, le=3)
 	chest_pain_type: int = Field(..., ge=0, le=3)
 	resting_bp: int = Field(..., ge=0, le=300)
 	cholesterol: int = Field(..., ge=0, le=1000)
@@ -173,7 +165,6 @@ class HeartMetricsInput(BaseModel):
 				"congenital_heart_disease": 0,
 				"diagnosed_diabetes": 0,
 				"physical_activity_level": 0,
-				"symptom_severity": 2,
 				"chest_pain_type": 0,
 				"resting_bp": 148,
 				"cholesterol": 262,
@@ -215,7 +206,6 @@ DEMO_CASES = [
 			"congenital_heart_disease": 0,
 			"diagnosed_diabetes": 0,
 			"physical_activity_level": 2,
-			"symptom_severity": 0,
 			"chest_pain_type": 2,
 			"resting_bp": 118,
 			"cholesterol": 192,
@@ -246,7 +236,6 @@ DEMO_CASES = [
 			"congenital_heart_disease": 0,
 			"diagnosed_diabetes": 0,
 			"physical_activity_level": 1,
-			"symptom_severity": 2,
 			"chest_pain_type": 1,
 			"resting_bp": 142,
 			"cholesterol": 246,
@@ -277,7 +266,6 @@ DEMO_CASES = [
 			"congenital_heart_disease": 1,
 			"diagnosed_diabetes": 1,
 			"physical_activity_level": 0,
-			"symptom_severity": 3,
 			"chest_pain_type": 0,
 			"resting_bp": 156,
 			"cholesterol": 288,
@@ -544,8 +532,7 @@ def compute_ml_prediction(data: dict[str, Any]) -> dict[str, Any]:
 	if ml_model is None:
 		if training_coverage["available"] and not training_coverage["exact_match"]:
 			message = (
-				"Ca này chưa có mẫu trùng khớp trong dữ liệu huấn luyện hiện tại và mô hình ML chưa sẵn sàng để suy luận bổ sung. "
-				"Hệ thống vẫn lưu ca này để dùng cho lần huấn luyện tiếp theo."
+				"Xác xuất mắc bệnh"
 			)
 		else:
 			message = ml_model_error or "Mô hình ML hiện chưa sẵn sàng."
@@ -579,8 +566,7 @@ def compute_ml_prediction(data: dict[str, Any]) -> dict[str, Any]:
 		)
 	else:
 		message = (
-			"Ca này chưa có mẫu trùng khớp trong dữ liệu huấn luyện hiện tại. "
-			"Hệ thống vẫn đưa ra dự đoán theo các trường đã được huấn luyện và sẽ tự lưu ca này để bổ sung huấn luyện sau."
+			"Xác suất mắc bệnh"
 		)
 
 	return {
@@ -597,7 +583,7 @@ def risk_level_from_score(score: float) -> str:
 	"""Chuyển điểm nguy cơ (%) thành nhãn mức nguy cơ: 'high', 'moderate' hoặc 'low'."""
 	if score >= 70:
 		return "high"
-	if score >= 40:
+	if score >= 30:
 		return "moderate"
 	return "low"
 
@@ -695,7 +681,7 @@ def build_case_confidence(
 			match_count = int(training_coverage.get("exact_match_count", 0))
 			reasons.append(f"đã có {match_count} mẫu trùng khớp trong dữ liệu huấn luyện")
 		else:
-			reasons.append("chưa có mẫu trùng khớp hoàn toàn trong dữ liệu huấn luyện")
+			reasons.append("Xác xuất mắc bệnh")
 
 	if reference_accuracy is not None:
 		reasons.append(f"độ chính xác tham chiếu hiện tại của mô hình là {reference_accuracy}%")

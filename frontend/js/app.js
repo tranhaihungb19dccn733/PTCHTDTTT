@@ -26,12 +26,6 @@ const fallbackOptions = {
 		{ value: 1, label: "Trung bình" },
 		{ value: 2, label: "Cao" },
 	],
-	symptom_severity: [
-		{ value: 0, label: "Bình thường, hầu như không có triệu chứng" },
-		{ value: 1, label: "Có dấu hiệu nhẹ hoặc thoáng qua" },
-		{ value: 2, label: "Có nhiều triệu chứng nghi ngờ bệnh tim" },
-		{ value: 3, label: "Triệu chứng rõ rệt, nghi ngờ đã mắc bệnh" },
-	],
 	chest_pain_type: [
 		{ value: 0, label: "Đau thắt ngực điển hình" },
 		{ value: 1, label: "Đau thắt ngực không điển hình" },
@@ -103,12 +97,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const options = await loadOptions();
 	console.log("Options loaded:", options);
 	populateSelects(options);
-	
+
 	// Verify population worked
 	const sexSelect = form.querySelector('select[name="sex"]');
 	console.log("Sex select after populate:", sexSelect);
 	console.log("Sex select children count:", sexSelect?.children?.length);
-	
+
 	restorePreviousState();
 });
 
@@ -200,7 +194,7 @@ function populateSelects(options) {
 			.join("");
 		console.log(`Populating ${name} with ${values.length} options`);
 		select.innerHTML = html;
-		
+
 		if (select.children.length === 0) {
 			console.error(`Select ${name} is still empty after populate! Adding fallback.`);
 			select.innerHTML = '<option value="">-- Không có dữ liệu --</option>';
@@ -290,7 +284,7 @@ function resetPredictionView() {
 	resultPanel.classList.add("hidden");
 	riskLabel.textContent = "-";
 	resultSummary.innerHTML = "";
-	riskPercent.textContent = "0%";
+	riskPercent.textContent = "-";
 	expertScore.textContent = "0";
 	mlScore.textContent = "Không có";
 	mlMessage.textContent = "Chưa sử dụng mô hình";
@@ -302,6 +296,17 @@ function resetPredictionView() {
 	recommendationList.innerHTML = "";
 }
 
+function getRiskDisplayLabel(percent) {
+	if (percent < 30) {
+		return "Nguy cơ thấp";
+	}
+
+	if (percent < 70) {
+		return "Nguy cơ trung bình";
+	}
+
+	return "Nguy cơ cao";
+}
 
 function renderPrediction(data) {
 	emptyState.classList.add("hidden");
@@ -317,7 +322,7 @@ function renderPrediction(data) {
 	resultSummary.innerHTML = summaryLines
 		.map((line) => `<li>${line}</li>`)
 		.join("");
-	riskPercent.textContent = `${percent}%`;
+	riskPercent.textContent = getRiskDisplayLabel(percent);
 	expertScore.textContent = `${expertSystem.normalized_score}%`;
 	mlScore.textContent = machineLearning.probability !== null ? `${machineLearning.probability}%` : "Không có";
 	mlMessage.textContent = machineLearning.message || "Không có thông tin từ mô hình.";
@@ -330,14 +335,15 @@ function renderPrediction(data) {
 
 	ruleList.innerHTML = expertSystem.rule_hits.length
 		? expertSystem.rule_hits
-			  .map((rule) => `<li><strong>${rule.title}:</strong> ${rule.message} (+${rule.score} điểm)</li>`)
-			  .join("")
+			.map((rule) => `<li><strong>${rule.title}:</strong> ${rule.message} (+${rule.score} điểm)</li>`)
+			.join("")
 		: "<li>Chưa phát hiện luật nguy cơ lớn nào được kích hoạt.</li>";
 
 	recommendationList.innerHTML = expertSystem.recommendations
 		.map((item) => `<li>${item}</li>`)
 		.join("");
 }
+
 
 
 function buildConfidenceNote(caseConfidence, referenceMetrics) {
